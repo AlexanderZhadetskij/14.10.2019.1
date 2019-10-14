@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using PseudoEnumerable.Interfaces;
 
 namespace PseudoEnumerable
@@ -11,47 +12,82 @@ namespace PseudoEnumerable
         public static IEnumerable<TSource> Filter<TSource>(this IEnumerable<TSource> source,
             IPredicate<TSource> predicate)
         {
-            // Add implementation method Filter from class ArrayExtension (Homework Day 9. 03.10.2019 Tasks 1-2)
-            throw new NotImplementedException();
+            if (source == null)
+            {
+                throw new ArgumentNullException();
+            }
+            foreach (var item in source)
+            {
+                if (predicate.IsMatching(item))
+                {
+                    yield return item;
+                }
+
+            }
         }
 
         public static IEnumerable<TResult> Transform<TSource, TResult>(this IEnumerable<TSource> source,
             ITransformer<TSource, TResult> transformer)
         {
-            // Call EnumerableExtension.Transform with delegate
-            throw new NotImplementedException();
+            return Transform<TSource, TResult>(source, transformer.Transform);
         }
 
         public static IEnumerable<TSource> OrderAccordingTo<TSource>(this IEnumerable<TSource> source,
             IComparer<TSource> comparer)
         {
-            // Add implementation method OrderAccordingTo from class ArrayExtension (Homework Day 9. 03.10.2019 Tasks 1-2)
-            throw new NotImplementedException();
+            List<TSource> result = new List<TSource>();
+
+            foreach (var item in source)
+            {
+                result.Add(item);
+            }
+
+            Array.Sort<TSource>(result.ToArray(), comparer);
+
+            foreach (var item in result)
+            {
+                yield return item;
+            }
+        }
+
+        private static List<TSource> GetCollection<TSource>(IEnumerable<TSource> sourceArray, IPredicate<TSource> predicate)
+        {
+            List<TSource> result = new List<TSource>();
+
+            foreach (var item in sourceArray)
+            {
+                if (predicate.IsMatching(item))
+                {
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
         #endregion
-        
+
         #region Implementation vs delegates
 
         public static IEnumerable<TSource> Filter<TSource>(this IEnumerable<TSource> source,
             Predicate<TSource> predicate)
-        {
-            // Call EnumerableExtension.Filter with interface
-            throw new NotImplementedException();
+        {            
+            return Filter<TSource>(source, new Interface2DelegateAdapter<TSource>(predicate).IsMatching);
         }
 
         public static IEnumerable<TResult> Transform<TSource, TResult>(this IEnumerable<TSource> source,
             Converter<TSource, TResult> transformer)
         {
-            // Implementation logic vs delegate Converter here 
-            throw new NotImplementedException();
+            foreach (var item in source)
+            {
+                yield return transformer(item);
+            }
         }
 
         public static IEnumerable<TSource> OrderAccordingTo<TSource>(this IEnumerable<TSource> source,
             Comparison<TSource> comparer)
         {
-            // Call EnumerableExtension.OrderAccordingTo with interface
-            throw new NotImplementedException();
+            return OrderAccordingTo<TSource>(source, Comparer<TSource>.Create(comparer));
         }
 
         #endregion
